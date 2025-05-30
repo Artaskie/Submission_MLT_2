@@ -15,41 +15,37 @@ Melalui proyek ini, kami ingin membangun sistem rekomendasi film yang mampu memb
 ## 2. Business Understanding
 
 ### Problem Statements
-1. Bagaimana cara merekomendasikan film yang relevan bagi pengguna?
-2. Bagaimana memanfaatkan data rating dan informasi konten film untuk menyusun sistem rekomendasi yang efektif?
+1. Bagaimana cara membuat sistem rekomendasi yang bisa menyarankan film berdasarkan kemiripan genre, atau fitur lainnya dari film yang pernah disukai pengguna (menggunakan pendekatan content-based filtering)?
+2. bagaimana membangun sistem yang mampu mempelajari kebiasaan menonton pengguna, lalu memberikan rekomendasi yang sesuai dengan selera mereka, berdasarkan pola interaksi yang terekam, seperti film yang mereka tonton atau beri rating (dengan pendekatan collaborative filtering)?
+3. Bagaimana mengukur keberhasilan sistem rekomendasi yang telah dikembangkan?
 
 ### Goals
-- Membangun dua sistem rekomendasi: content-based dan collaborative.
-- Menyajikan rekomendasi film yang sesuai preferensi pengguna.
-- Mengevaluasi performa sistem dengan metrik yang sesuai.
+1. Mengembangkan dua jenis sistem rekomendasi, yaitu content-based filtering dan collaborative filtering.
+2. Memberikan rekomendasi film yang relevan dengan minat dan kesukaan masing-masing pengguna.
+3. Mengukur kinerja sistem rekomendasi menggunakan indikator evaluasi yang tepat dan terukur..
 
-### Solution Approach
+### Solution Statements
 
-Untuk mencapai tujuan proyek yaitu membuat sistem rekomendasi film, dilakukan dua pendekatan yaitu: 
+Untuk mewujudkan tujuan proyek, solusi yang akan diterapkan meliputi dua pendekatan utama: 
 1. **Content-Based Filtering**
-   - Menggunakan **TF-IDF Vectorizer** pada kolom genre.
-   - Menghitung kemiripan antar film menggunakan **Cosine Similarity**.
+   - Menggunakan **TF-IDF Vectorizer** ntuk mengekstrak informasi penting dari genre film sebagai representasi fitur.
+   - Menggunakan algoritma Nearest Neighbors dengan pendekatan cosine similarity.
+   - Membuat daftar rekomendasi film berdasarkan kemiripan konten dengan film yang sebelumnya pernah disukai atau ditonton oleh pengguna.
 
 2. **Collaborative Filtering**
-   - Menggunakan algoritma **Singular Value Decomposition (SVD)** dari pustaka Surprise.
-   - Berdasarkan interaksi pengguna dalam bentuk rating.
+   - Merancang model Neural Network yang menggunakan embedding layer untuk memetakan pengguna dan film.
+   - Melatih model tersebut menggunakan data rating yang telah diberikan oleh pengguna.
+   - Menghasilkan rekomendasi film dengan memilih film-film yang memiliki nilai prediksi tertinggi.
 
 ---
 
 ## 3. Data Understanding
 
 ### Dataset Overview
-Dataset ini diambil dari Kaggle:
-https://www.kaggle.com/datasets/parasharmanas/movie-recommendation-system
-
-Dataset tersebut terdiri dari dua file utama:
+Proyek ini menggunakan dataset Movie Recommendation System yang tersedia di Kaggle, dikembangkan oleh Parashar Manas. Dataset ini dirancang untuk membangun sistem rekomendasi film menggunakan teknik pembelajaran mesin dan menyediakan dua file utama:
 
 #### a. movies.csv
 - Jumlah data: 62.432 baris × 3 kolom
-- Kondisi data:
-  - Missing value: 0
-  - Duplikat: Tidak ada
-  - Outlier: Tidak relevan karena semua data kategori
 - Fitur:
 
 | Fitur | Deskripsi |
@@ -62,18 +58,14 @@ Tabel 1. Fitur dataset movie.csv
 
 #### b. ratings.csv
 - Jumlah data: 25.000.095 baris × 4 kolom
-- Kondisi data:
-  - Missing value: Ada pada sebagian kecil data
-  - Duplikat: Ada dan sudah dibersihkan
-  - Outlier: Tidak signifikan, rating dalam skala 0.5–5
 - Fitur:
 
 | Fitur | Deskripsi |
 | ------ | ------ |
-| userId | ID unik pengguna yang memberikan rating |
-| movieId | ID film yang diberi rating |
-| rating | Nilai rating, biasanya skala 0.5 sampai 5 |
-| timestamp | Waktu rating diberikan dalam format UNIX |
+| userId | ID unik untuk setiap pengguna. |
+| movieId | ID film yang dirating |
+| rating | Skor rating yang diberikan pengguna |
+| timestamp | Waktu saat rating diberikan |
 
 Tabel 2. Fitur dataset rating.csv
 
@@ -83,46 +75,42 @@ Tabel 2. Fitur dataset rating.csv
 Pada tahap ini, dilakukan beberapa teknik data preparation untuk mempersiapkan dataset sebelum digunakan dalam model sistem rekomendasi. Teknik-teknik tersebut dilakukan secara berurutan sebagai berikut:
 
 ### 1. Handling Missing Value
-- Dataset movies: kolom genres yang kosong diisi dengan string kosong ('') agar kompatibel dengan TF-IDF.
-- Dataset ratings: baris dengan nilai kosong pada userId, movieId, atau rating dihapus karena ketiganya bersifat wajib untuk training model collaborative filtering.
-
-Kode yang digunakan 
-```
-movies.isnull().sum()
-ratings.isnull().sum()
-movies['genres'] = movies['genres'].fillna('')
-```
-
-**Penjelasan**: Nilai kosong pada kolom genres di dataset movies diisi dengan string kosong ('') agar tidak error saat digunakan oleh TF-IDF Vectorizer. Sementara untuk dataset ratings, baris yang memiliki missing value pada kolom userId, movieId, atau rating dihapus karena kolom-kolom ini esensial dalam proses pelatihan model collaborative filtering.
+- Tidak ditemukan missing values pada dataset.
+| Fitur | 0 |
+| ------ | ------ |
+| **movieId** | 0 |
+| **title** | 0 |
+| **genres** | 0 |
+| **userId** | 0 |
+| **rating** | 0 |
 
 ### 2. Handling Duplicates
 Kode yang digunakan 
 ```
-ratings = ratings.drop_duplicates()
+print(df.duplicated().sum())
 ```
 
-**Penjelasan**: Baris duplikat pada dataset ratings dihapus menggunakan fungsi drop_duplicates() untuk menghindari bias data dan overfitting pada collaborative filtering. Satu user tidak boleh memengaruhi bobot prediksi lebih dari sekali untuk film yang sama dengan rating yang sama.
+Tidak terdapat data duplikat pada dataset tersebut.
 
-### 3. Handling Outliers
-Penanganan outlier tidak dilakukan karena fitur utama berupa rating memiliki domain terbatas dan terstandarisasi. Tidak ditemukan nilai di luar rentang 0.5–5.0
-
-### 4. Content-Based Filtering Preparation
+### 3. Content-Based Filtering Preparation
 Kode yang digunakan 
-```
-movies['genres_str'] = movies['genres'].str.replace('|', ' ')
-tfidf = TfidfVectorizer(stop_words='english')
-tfidf_matrix = tfidf.fit_transform(movies['genres_str'])
+```python
+movie_features = df_sample.drop_duplicates('movieId')[['movieId', 'title', 'genres']].reset_index(drop=True)
+tfidf = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b")
+tfidf_matrix = tfidf.fit_transform(movie_features['genres'])
+cos_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
 ```
 
 **Penjelasan**:
 
-- Mengganti karakter pemisah '|' menjadi spasi agar setiap genre dikenali sebagai token berbeda.
-- Membangun TF-IDF matrix dari kolom genres_str.
-- Matriks ini menjadi dasar untuk menghitung cosine similarity antar film.
+- Mengambil data unik dari setiap film berdasarkan movieId, lalu menyimpan hanya kolom movieId, title, dan genres sebagai data utama untuk pembuatan fitur konten.
+- Membuat objek TF-IDF Vectorizer untuk mengubah teks genre menjadi representasi numerik.
+- Menerapkan TF-IDF Vectorizer pada kolom genres untuk menghasilkan matriks representasi fitur dari genre tiap film.
+- Menghitung tingkat kemiripan antar film berdasarkan genre menggunakan metrik cosine similarity dari TF-IDF matrix.
 
-### 5. Collaborative Filtering Preparation
+### 4. Collaborative Filtering Preparation
 Kode yang digunakan 
-```
+```python
 from surprise import Reader, Dataset
 reader = Reader(rating_scale=(ratings['rating'].min(), ratings['rating'].max()))
 data = Dataset.load_from_df(ratings[['userId', 'movieId', 'rating']], reader)
@@ -133,18 +121,6 @@ data = Dataset.load_from_df(ratings[['userId', 'movieId', 'rating']], reader)
 - Mengatur skala rating dinamis berdasarkan data.
 - Memuat data ke dalam format Dataset Surprise untuk digunakan pada algoritma collaborative filtering (SVD).
 - Melakukan validasi silang menggunakan cross_validate untuk mengukur performa model.
-
-### 6. Split Data
-Kode yang digunakan 
-```
-from surprise.model_selection import train_test_split
-# Membagi dataset menjadi train dan test set
-trainset, testset = train_test_split(data, test_size=0.25, random_state=42)
-```
-
-**Penjelasan**: Split data atau membagi dataset menjadi dua bagian, yaitu data pelatihan (trainset) dan data pengujian (testset), di mana 75% data digunakan untuk melatih model dan 25% sisanya untuk menguji performa model. Pembagian data dilakukan secara acak namun konsisten menggunakan random_state=42 agar hasilnya dapat direproduksi.
-
----
 
 ## 5. Modeling and Result
 
