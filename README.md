@@ -1,18 +1,14 @@
 # Sistem Rekomendasi - Movie Recommendation System
 
-Membangun sistem rekomendasi film menggunakan pendekatan Content-Based Filtering dan Collaborative Filtering
-
 ## 1. Project Overview
 
 ### Latar Belakang
-Dalam era digital saat ini, pengguna memiliki akses ke ribuan film melalui berbagai platform. Namun, banyaknya pilihan justru menciptakan tantangan dalam menemukan film yang sesuai dengan preferensi individu. Oleh karena itu, sistem rekomendasi menjadi solusi penting untuk membantu pengguna menemukan konten yang relevan.
 
-Proyek ini bertujuan membangun sistem rekomendasi film dengan pendekatan:
-- **Content-Based Filtering**, yang merekomendasikan film berdasarkan kesamaan konten.
-- **Collaborative Filtering**, yang menggunakan perilaku pengguna untuk memberikan rekomendasi.
+Di era platform hiburan digital saat ini, sistem rekomendasi film memainkan peran krusial dalam membantu pengguna menemukan tontonan yang sesuai dengan selera mereka. Dengan jumlah film yang sangat banyak, pengguna sering merasa kewalahan saat mencari konten yang cocok. Jika sistem rekomendasi tidak bekerja dengan baik, hal ini bisa berdampak pada buruknya pengalaman pengguna, berkurangnya pengguna yang kembali menggunakan layanan, hingga menurunnya pendapatan perusahaan.
 
-### Relevansi dan Pentingnya Proyek
-Meningkatkan pengalaman pengguna dengan menyarankan film yang relevan dapat meningkatkan engagement serta kepuasan pengguna. Sistem ini banyak digunakan oleh platform seperti Netflix, Disney+, dan Amazon Prime.
+Penelitian menunjukkan bahwa kecepatan dan ketepatan sistem rekomendasi sangat memengaruhi pengalaman pengguna dalam memilih film. Menurut studi dari Nugroho et al. (2024), pengguna cenderung bosan dan berpindah ke platform lain jika tidak menemukan film yang mereka inginkan dalam waktu 90 detik. Untuk mengatasi hal ini, pendekatan seperti Neural Collaborative Filtering telah terbukti efektif dengan capaian recall hingga 69,6% dan NDCG sebesar 81,4% dalam eksperimen pada dataset MovieLens. Di sisi lain, Fanani (2024) dalam penelitiannya menggunakan metode K-Nearest Neighbors (KNN) berhasil mencapai precision hingga 100% dan recall sebesar 45,4%, menunjukkan bahwa algoritma berbasis kesamaan juga memiliki potensi yang kuat dalam memberikan rekomendasi yang relevan. Temuan-temuan ini mempertegas pentingnya pengembangan sistem rekomendasi yang akurat dan dipersonalisasi guna meningkatkan kepuasan pengguna sekaligus mendukung keberhasilan bisnis platform hiburan digital.
+
+Melalui proyek ini, kami ingin membangun sistem rekomendasi film yang mampu membantu pengguna menemukan film sesuai dengan minat mereka. Dengan memanfaatkan data dari MovieLens — yang mencakup rating dan tag film dari ribuan pengguna — proyek ini akan menerapkan dan membandingkan dua metode rekomendasi, yaitu *Content-Based Filtering* dan *Collaborative Filtering* berbasis Deep Learning.
 
 ---
 
@@ -303,10 +299,7 @@ Model yang dibangun sangat relevan terhadap _business understanding_ proyek ini:
 ---
 
 ## Referensi
-1. Larasati, F. B. A., & Februariyanti, H. (2021). Sistem Rekomendasi Produk Emina Cosmetics dengan Menggunakan Metode Content-Based Filtering. Jurnal Manajemen Informatika dan Sistem Informasi, 4(1), 45–54.
-https://e-journal.upr.ac.id/index.php/JTI/article/view/12543
-2. Putri, M. W., & Wibowo, A. T. (2024). Content-Based Filtering pada Sistem Rekomendasi Buku Informatika. Jurnal Ilmiah SINUS (JIS), 22(2), 58–64.
-https://doi.org/10.30646/sinus.v22i2.840
-3. Rachmat, R. (2024). Analysis of Algorithms and Data Processing Efficiency in Movie Recommendation Systems. Jurnal Mandiri IT, 13(2), 273–279. https://ejournal.isha.or.id/index.php/Mandiri/article/download/358/388/2234
-4. Setiawan, A. H., & Kurniawan, I. (2021). Penerapan Collaborative Filtering untuk Rekomendasi Produk di Platform E-Commerce. Jurnal Ilmu Komputer AMIKOM, 7(1), 71–78. https://ejournal.amikom.ac.id/index.php/jik/article/view/1234
-5. Wulandari, F., & Hermawan, D. (2019). Perbandingan Collaborative Filtering dan Content-Based Filtering untuk Sistem Rekomendasi Buku. Jurnal Ilmiah Teknik Informatika Komputer (JITIK), 5(1), 23–30. https://jitik.stmikjayakarta.ac.id/index.php/jitik/article/view/1904
+1. Nugroho, D. A., Lubis, C., & Perdana, N. J. (2024). SISTEM REKOMENDASI FILM MENGGUNAKAN METODE NEURAL COLLABORATIVE FILTERING. Journal of Information Technology and Computer Science (INTECOMS), 7(3), 926–937.
+https://lintar.untar.ac.id/repository/penelitian/buktipenelitian_10393012_4A040824110850.pdf
+2. Fanani, M. A. (2024). Sistem Rekomendasi Film Menggunakan Metode K-NN. Jurnal Ilmiah Sistem Informasi Dan Ilmu Komputer, 4(1), 178–185. https://doi.org/10.55606/juisik.v4i1.760
+
