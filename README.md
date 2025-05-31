@@ -75,7 +75,7 @@ Tabel 2. Fitur dataset rating.csv
 Pada tahap ini, dilakukan beberapa teknik data preparation untuk mempersiapkan dataset sebelum digunakan dalam model sistem rekomendasi. Teknik-teknik tersebut dilakukan secara berurutan sebagai berikut:
 
 ### 1. Handling Missing Value
-- Tidak ditemukan missing values pada dataset.
+Tidak ditemukan missing values pada dataset.
   
 | Fitur | 0 |
 | ------ | ------ |
@@ -87,13 +87,18 @@ Pada tahap ini, dilakukan beberapa teknik data preparation untuk mempersiapkan d
 
 ### 2. Handling Duplicates
 Kode yang digunakan 
-```
+```python
 print(df.duplicated().sum())
 ```
 
 Tidak terdapat data duplikat pada dataset tersebut.
 
-### 3. Content-Based Filtering Preparation
+### 3. Sample Dataset
+
+
+
+### 4. Content-Based Filtering
+
 Kode yang digunakan 
 ```python
 movie_features = df_sample.drop_duplicates('movieId')[['movieId', 'title', 'genres']].reset_index(drop=True)
@@ -109,19 +114,38 @@ cos_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
 - Menerapkan TF-IDF Vectorizer pada kolom genres untuk menghasilkan matriks representasi fitur dari genre tiap film.
 - Menghitung tingkat kemiripan antar film berdasarkan genre menggunakan metrik cosine similarity dari TF-IDF matrix.
 
-### 4. Collaborative Filtering Preparation
+### 5. Collaborative Filtering
+
 Kode yang digunakan 
 ```python
-from surprise import Reader, Dataset
-reader = Reader(rating_scale=(ratings['rating'].min(), ratings['rating'].max()))
-data = Dataset.load_from_df(ratings[['userId', 'movieId', 'rating']], reader)
+user_ids = cbf_df['userId'].unique().tolist()
+user_to_user_encoded = {x: i for i, x in enumerate(user_ids)}
+user_encoded_to_user = {i: x for i, x in enumerate(user_ids)}
+
+movie_ids = cbf_df['movieId'].unique().tolist()
+movie_to_movie_encoded = {x: i for i, x in enumerate(movie_ids)}
+movie_encoded_to_movie = {i: x for i, x in enumerate(movie_ids)}
+
+cbf_df['user'] = cbf_df['userId'].map(user_to_user_encoded)
+cbf_df['movie'] = cbf_df['movieId'].map(movie_to_movie_encoded)
 ```
 
 **Penjelasan**: 
 
-- Mengatur skala rating dinamis berdasarkan data.
-- Memuat data ke dalam format Dataset Surprise untuk digunakan pada algoritma collaborative filtering (SVD).
+- Mengubah ID kualitatif (userId dan movieId) menjadi angka numerik (index).
+- Membuat dictionary yang memetakan setiap userId asli (x) ke angka urut (i) — proses encoding.
 - Melakukan validasi silang menggunakan cross_validate untuk mengukur performa model.
+
+### 5. Collaborative Filtering
+
+Kode yang digunakan :
+```python
+x = cbf_df[['user', 'movie']].values
+y = cbf_df['rating'].apply(lambda x: (x - min_rating) / (max_rating - min_rating)).values
+
+x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2, random_state=42)
+```
+Data dibagi menjadi set training (80%) dan validasi (20%) untuk melatih dan mengevaluasi model. Random state ditetapkan untuk memastikan reprodusibilitas hasil.
 
 ## 5. Modeling and Result
 
@@ -130,26 +154,57 @@ Dalam proyek ini, digunakan dua pendekatan utama untuk membangun sistem rekomend
 
 **1. Content-Based Filtering**
 
-**definisi**: Content-Based Filtering adalah pendekatan sistem rekomendasi yang menyarankan item berdasarkan kesamaan konten antar item. Sistem ini fokus pada fitur atau deskripsi item itu sendiri, bukan interaksi pengguna lain.
+Model content-based filtering diimplementasikan menggunakan algoritma Nearest Neighbors dengan metrik cosine similarity:
+
+```python
+def rekomendasi_dengan_genre(genre_input, top_n=5):
+    genre_mask = movie_features['genres'].str.contains(genre_input, case=False, na=False)
+    matching_movies = movie_features[genre_mask]
+
+    if matching_movies.empty:
+        print(f"Tidak ada film pada genre '{genre_input}' ditemukan.")
+        return
+
+    idx = matching_movies.index[0]
+    sim_scores = list(enumerate(cos_sim[idx]))
+
+    sim_scores = [x for x in sim_scores if x[0] != idx]
+
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[:top_n]
+
+    print(f"Rekomendasi film mirip berdasarkan genre '{genre_input}' dengan referensi:")
+    print(f"> {movie_features.iloc[idx]['title']} | Genre: {movie_features.iloc[idx]['genres']}")
+
+    for i, (movie_idx, _) in enumerate(sim_scores, 1):
+        title = movie_features.iloc[movie_idx]['title']
+        genres = movie_features.iloc[movie_idx]['genres']
+        print(f"{i}. {title} | Genre: {genres}")
+```
+
+
 
 **Cara Kerja**:
-- Informasi dari film (seperti genre) diolah menjadi representasi vektor menggunakan TF-IDF (Term Frequency-Inverse Document Frequency).
-- Kemudian dihitung kemiripan antar film menggunakan metrik cosine similarity.
-- Film yang memiliki nilai kemiripan tinggi dengan film yang pernah disukai oleh pengguna akan direkomendasikan.
-
-**Cara Kerja Cosine Similarity**: Cosine similarity digunakan untuk mengukur tingkat kemiripan antara dua vektor dengan membandingkan sudut di antara keduanya. Semakin kecil sudut, semakin besar kemiripannya. Nilai cosine similarity berkisar antara 0 (tidak mirip) hingga 1 (sangat mirip).
+1. Filter film berdasarkan genre input.
+2. Jika tidak ada film dengan genre tersebut, keluar.
+3. Ambil indeks film referensi pertama dari genre tersebut.
+4. Hitung skor kemiripan cosine.
+5. Hilangkan film referensi dari hasil (jangan rekomendasikan dirinya sendiri).
+6. Urutkan dan ambil Top-N film dengan skor kemiripan tertinggi
+7. Tampilkan hasil rekomendasi
 
 **Kelebihan**:
-- Dapat merekomendasikan item meskipun belum pernah dirating (cold-start item).
-- Tidak bergantung pada data dari pengguna lain.
+- Tidak membutuhkan data dari pengguna lain (independen).
+- Bisa memberikan rekomendasi yang sangat personal.
 
 **Kekurangan**:
-- Cenderung hanya merekomendasikan item yang sangat mirip (kurang beragam).
-- Tidak mempertimbangkan preferensi kolektif pengguna lain.
-
-**2. Collaborative Filtering (SVD - Singular Value Decomposition)**
+- Keterbatasan eksplorasi item (sering terlalu mirip).
+- Bergantung pada kualitas fitur item.
+  
+**2. Collaborative Filtering**
 
 **Definisi**: Collaborative Filtering memberikan rekomendasi berdasarkan pola interaksi pengguna. Sistem ini mengasumsikan bahwa jika dua pengguna memiliki preferensi yang mirip di masa lalu, maka mereka cenderung menyukai item yang sama di masa depan.
+
+
 
 **Cara Kerja**:
 - Dibuat matriks user-item berdasarkan rating yang diberikan.
