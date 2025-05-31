@@ -179,6 +179,25 @@ def rekomendasi_dengan_genre(genre_input, top_n=5):
         title = movie_features.iloc[movie_idx]['title']
         genres = movie_features.iloc[movie_idx]['genres']
         print(f"{i}. {title} | Genre: {genres}")
+
+def rekomendasi_film_content(title, top_n=5):
+    match = movie_features[movie_features['title'].str.lower() == title.lower()]
+    if match.empty:
+        print("Judul film tidak ditemukan.")
+        return
+
+    idx = match.index[0]
+    sim_scores = list(enumerate(cos_sim[idx]))
+
+    sim_scores = [x for x in sim_scores if x[0] != idx]
+
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[:top_n]
+
+    print(f"Rekomendasi untuk: {movie_features.iloc[idx]['title']} | Genre: {movie_features.iloc[idx]['genres']}")
+    for i, (movie_idx, _) in enumerate(sim_scores, 1):
+        rec_title = movie_features.iloc[movie_idx]['title']
+        rec_genre = movie_features.iloc[movie_idx]['genres']
+        print(f"{i}. {rec_title} | Genre: {rec_genre}")
 ```
 
 **Cara Kerja**:
@@ -331,25 +350,29 @@ cara kerja :
 
 ### Pendekatan 1: Content-Based Filtering
 
-Disini saya merekomendasikan film Toy Story (1995)
+Disini saya merekomendasikan 2, yaitu genre dan film. Untuk film kita gunakan genre **drama**
+
+Hasil dari Top 5 dari genre yang saya rekomendasikan adalah sebagai berikut :
+<img width="593" alt="Image" src="https://github.com/user-attachments/assets/0f1df93a-ab47-4e32-b490-0bb7a485c068" />
+
+**Penjelasan** : Sistem rekomendasi content-based memberikan 5 film teratas yang mirip dengan genre drama, yaitu:
+- Blindness (2008)
+- Conspiracy Theory (1997)
+- Vertigo (1958)
+- Rebecca (1940)
+- Boxing Helena (1993)
+
+Disini saya akan merekomendasikan film yang berjudul **Waiting to Exhale (1995)**
 
 Hasil dari Top 5 dari film atau movie yang saya rekomendasikan adalah sebagai berikut :
-![alt text](https://github.com/AtikaOktavianti/-Predictive-Analytics/blob/main/top5.png?raw=true)
+<img width="593" alt="Image" src="https://github.com/user-attachments/assets/0f1df93a-ab47-4e32-b490-0bb7a485c068" />
 
-**Penjelasan** : Sistem rekomendasi content-based memberikan 5 film teratas yang mirip dengan Toy Story (1995). Dari 5 film yang direkomendasikan, 3 film ditemukan dalam daftar film relevan (ground truth), yaitu:
-- Pagemaster, The (1994)
-- Kids of the Round Table (1995)
-- Space Jam (1996)
-- Jumanji (1995)
-- Indian in the Cupboard, The (1995)
-
-Namun hanya 3 film yang cocok dengan daftar relevant_movies, sehingga:
-Precision@5 = 3 relevan / 5 rekomendasi = 0.60
-
-Artinya, 60% rekomendasi yang diberikan sistem terbukti relevan berdasarkan daftar acuan, menunjukkan performa sistem yang cukup baik.
-
-Teknik Evaluasi di atas adalah dengan menggunakan precission, rumus dari teknik ini adalah :
-![alt text](https://github.com/AtikaOktavianti/-Predictive-Analytics/blob/main/rumuscbs.png?raw=true)
+**Penjelasan** : Sistem rekomendasi content-based memberikan 5 film teratas yang mirip dengan **Waiting to Exhale (1995)**, yaitu:
+- Terminal, The (2004)
+- Graduate, The (1967)
+- About Last Night... (1986)
+- Singles (1992)
+- Sleepless in Seattle (1993)
 
 ### Pendekatan 2: Collaborative Filtering (SVD)
 
