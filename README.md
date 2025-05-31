@@ -54,8 +54,6 @@ Proyek ini menggunakan dataset Movie Recommendation System yang tersedia di Kagg
 | title | Judul film |
 | genres | Genre film, dipisahkan dengan tanda | |
 
-Tabel 1. Fitur dataset movie.csv
-
 #### b. ratings.csv
 - Jumlah data: 25.000.095 baris × 4 kolom
 - Fitur:
@@ -66,8 +64,6 @@ Tabel 1. Fitur dataset movie.csv
 | movieId | ID film yang dirating |
 | rating | Skor rating yang diberikan pengguna |
 | timestamp | Waktu saat rating diberikan |
-
-Tabel 2. Fitur dataset rating.csv
 
 ---
 
@@ -93,11 +89,7 @@ print(df.duplicated().sum())
 
 Tidak terdapat data duplikat pada dataset tersebut.
 
-### 3. Sample Dataset
-
-
-
-### 4. Content-Based Filtering
+### 3. Content-Based Filtering
 
 Kode yang digunakan 
 ```python
@@ -114,7 +106,7 @@ cos_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
 - Menerapkan TF-IDF Vectorizer pada kolom genres untuk menghasilkan matriks representasi fitur dari genre tiap film.
 - Menghitung tingkat kemiripan antar film berdasarkan genre menggunakan metrik cosine similarity dari TF-IDF matrix.
 
-### 5. Collaborative Filtering
+### 4. Collaborative Filtering
 
 Kode yang digunakan 
 ```python
@@ -136,7 +128,7 @@ cbf_df['movie'] = cbf_df['movieId'].map(movie_to_movie_encoded)
 - Membuat dictionary yang memetakan setiap userId asli (x) ke angka urut (i) — proses encoding.
 - Melakukan validasi silang menggunakan cross_validate untuk mengukur performa model.
 
-### 5. Collaborative Filtering
+### 5. Splitting Data
 
 Kode yang digunakan :
 ```python
@@ -146,6 +138,8 @@ y = cbf_df['rating'].apply(lambda x: (x - min_rating) / (max_rating - min_rating
 x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2, random_state=42)
 ```
 Data dibagi menjadi set training (80%) dan validasi (20%) untuk melatih dan mengevaluasi model. Random state ditetapkan untuk memastikan reprodusibilitas hasil.
+
+---
 
 ## 5. Modeling and Result
 
@@ -345,6 +339,7 @@ cara kerja :
 | **Optimisasi** | Bobot diperbarui dengan **Adam optimizer** |
 | **Evaluasi** | Diukur dengan **RMSE** selama training dan validasi |
 
+---
 
 ## 6. Evaluation
 
@@ -449,6 +444,71 @@ Hasil: Precision@5 = 5 / 5 = 100%
 - Precision@K memberikan gambaran seberapa relevan rekomendasi sistem terhadap preferensi pengguna.
 - Evaluasi dilakukan secara kualitatif berdasarkan konten, sesuai dengan prinsip content-based filtering.
 - Pendekatan ini berguna terutama ketika data eksplisit seperti rating pengguna belum tersedia atau terbatas (cold-start).
+
+---
+## Hubungan Model dengan Business Understanding
+
+### 1. Apakah sudah menjawab setiap problem statement?
+
+**Problem Statement 1:** _Bagaimana cara membuat sistem rekomendasi yang bisa menyarankan film berdasarkan kemiripan genre, atau fitur lainnya dari film yang pernah disukai pengguna (menggunakan pendekatan content-based filtering)?_  
+**Terjawab Melalui:**
+
+- Implementasi TF-IDF Vectorizer pada kolom genres.
+- Penerapan cosine similarity.
+- Fungsi rekomendasi_dengan_genre() dan rekomendasi_film_content().
+- Evaluasi relevansi dengan Precision@5 = 100% menunjukkan keberhasilan metode ini.
+
+**Problem Statement 2:** _bagaimana membangun sistem yang mampu mempelajari kebiasaan menonton pengguna, lalu memberikan rekomendasi yang sesuai dengan selera mereka, berdasarkan pola interaksi yang terekam, seperti film yang mereka tonton atau beri rating (dengan pendekatan collaborative filtering)?_  
+**Terjawab Melalui:**  
+
+- Implementasi Neural Collaborative Filtering dengan TensorFlow (class RecommenderNet).
+- Penggunaan embedding layer untuk memetakan user dan movie.
+- Pelatihan model dengan model.fit(...) menggunakan data rating pengguna.
+- Fungsi rekomendasi_film_dari_user() yang menghasilkan rekomendasi berdasarkan prediksi dari interaksi sebelumnya.
+
+**Problem Statement 3:** _Bagaimana mengukur keberhasilan sistem rekomendasi yang dikembangkan?_  
+**Terjawab Melalui:**  
+
+- Evaluasi Collaborative Filtering menggunakan RMSE (dengan hasil 0.2482 dan 0.2502 yang cukup rendah).
+- Evaluasi Content-Based Filtering menggunakan Precision@K (dengan hasil Precision@5 = 100%).
+- Penjelasan metrik RMSE dan Precision@K disertai formula dan interpretasi bisnisnya.
+
+### 2. Apakah berhasil mencapai setiap goals yang diharapkan?
+
+**Goal 1:** _Mengembangkan dua jenis sistem rekomendasi, yaitu content-based filtering dan collaborative filtering._  
+**Tercapai.** mengimplementasikan dan membandingkan dua pendekatan.
+
+**Goal 2:** _Memberikan rekomendasi film yang relevan dengan minat dan kesukaan masing-masing pengguna._  
+**Tercapai.**
+- Content-Based menghasilkan rekomendasi berdasarkan genre dan kemiripan konten.
+- Collaborative Filtering mempelajari kebiasaan user dan merekomendasikan berdasarkan preferensi historis.
+- Hasil rekomendasi spesifik diberikan untuk user_id=33048 dan film Waiting to Exhale (1995).
+
+**Goal 3:** _Mengukur kinerja sistem rekomendasi menggunakan indikator evaluasi yang tepat dan terukur._  
+**Tercapai.**  
+- **Content-Based:** Precision@5 = 1  
+- **Collaborative Filtering:** RMSE Data Latih : 0.2482, RMSE Data Validasi : 0.2502.
+
+### 3. Apakah setiap solusi statement yang kamu rencanakan berdampak?
+
+Ya, kedua pendekatan memberikan dampak nyata terhadap tujuan bisnis:
+
+#### Content-Based Filtering
+- **Dampak:** Dapat memberikan rekomendasi untuk film baru (cold-start item).
+- **Manfaat bisnis:** Menjaga ketertarikan pengguna baru melalui rekomendasi yang relevan.
+
+#### Collaborative Filtering
+- **Dampak:** Memberikan rekomendasi personal berdasarkan preferensi pengguna lain.
+- **Manfaat bisnis:** Meningkatkan pengalaman pengguna jangka panjang dan loyalitas.
+
+## Kesimpulan
+
+Model yang dibangun sangat relevan terhadap _business understanding_ proyek ini:
+- Semua **problem statement** dijawab.
+- **Tujuan bisnis** tercapai dan divalidasi secara metrik.
+- **Solusi yang diimplementasikan berdampak nyata** pada peningkatan kepuasan pengguna.
+
+---
 
 ## Referensi
 1. Nugroho, D. A., Lubis, C., & Perdana, N. J. (2024). SISTEM REKOMENDASI FILM MENGGUNAKAN METODE NEURAL COLLABORATIVE FILTERING. Journal of Information Technology and Computer Science (INTECOMS), 7(3), 926–937.
