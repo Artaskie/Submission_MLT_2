@@ -22,7 +22,7 @@ Melalui proyek ini, kami ingin membangun sistem rekomendasi film yang mampu memb
 ### Goals
 1. Mengembangkan dua jenis sistem rekomendasi, yaitu content-based filtering dan collaborative filtering.
 2. Memberikan rekomendasi film yang relevan dengan minat dan kesukaan masing-masing pengguna.
-3. Mengukur kinerja sistem rekomendasi menggunakan indikator evaluasi yang tepat dan terukur..
+3. Mengukur kinerja sistem rekomendasi menggunakan indikator evaluasi yang tepat dan terukur.
 
 ### Solution Statements
 
@@ -486,7 +486,7 @@ Hasil: Precision@5 = 5 / 5 = 100%
 
 **Goal 3:** _Mengukur kinerja sistem rekomendasi menggunakan indikator evaluasi yang tepat dan terukur._  
 **Tercapai.**  
-- **Content-Based:** Precision@5 = 1  
+- **Content-Based:** Precision@5 = 100%
 - **Collaborative Filtering:** RMSE Data Latih : 0.2482, RMSE Data Validasi : 0.2502.
 
 ### 3. Apakah setiap solusi statement yang kamu rencanakan berdampak?
