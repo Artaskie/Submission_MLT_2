@@ -76,6 +76,7 @@ Pada tahap ini, dilakukan beberapa teknik data preparation untuk mempersiapkan d
 
 ### 1. Handling Missing Value
 - Tidak ditemukan missing values pada dataset.
+  
 | Fitur | 0 |
 | ------ | ------ |
 | **movieId** | 0 |
