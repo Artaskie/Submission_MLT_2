@@ -181,8 +181,6 @@ def rekomendasi_dengan_genre(genre_input, top_n=5):
         print(f"{i}. {title} | Genre: {genres}")
 ```
 
-
-
 **Cara Kerja**:
 1. Filter film berdasarkan genre input.
 2. Jika tidak ada film dengan genre tersebut, keluar.
@@ -204,22 +202,130 @@ def rekomendasi_dengan_genre(genre_input, top_n=5):
 
 **Definisi**: Collaborative Filtering memberikan rekomendasi berdasarkan pola interaksi pengguna. Sistem ini mengasumsikan bahwa jika dua pengguna memiliki preferensi yang mirip di masa lalu, maka mereka cenderung menyukai item yang sama di masa depan.
 
+```python
+def rekomendasi_film_dari_user(user_id, model, cbf_df, user_to_user_encoded, user_encoded_to_user,
+                              movie_to_movie_encoded, movie_encoded_to_movie, top_k=10):
 
+    if user_id not in user_to_user_encoded:
+        print(f"User {user_id} tidak ditemukan di data training.")
+        return []
+
+    user_encoded = user_to_user_encoded[user_id]
+
+    movies_watched = cbf_df[cbf_df['userId'] == user_id]['movieId'].unique()
+    movies_not_watched = [m for m in movie_to_movie_encoded.keys() if m not in movies_watched]
+    movies_not_watched_encoded = [movie_to_movie_encoded[m] for m in movies_not_watched]
+
+    user_array = np.array([user_encoded] * len(movies_not_watched_encoded))
+    movie_array = np.array(movies_not_watched_encoded)
+    input_array = np.vstack((user_array, movie_array)).T
+
+    pred_ratings = model.predict(input_array, verbose=0).flatten()
+
+    top_indices = pred_ratings.argsort()[-top_k:][::-1]
+    top_movie_encoded = [movies_not_watched_encoded[i] for i in top_indices]
+    top_movie_ids = [movie_encoded_to_movie[m] for m in top_movie_encoded]
+
+    print(f"\nRekomendasi {top_k} film untuk user {user_id}:")
+
+    for movie_id in top_movie_ids:
+        title = cbf_df[cbf_df['movieId'] == movie_id]['title'].values
+        if len(title) > 0:
+            print(f"- {title[0]}")
+        else:
+            print(f"- Movie ID {movie_id} (judul tidak ditemukan)")
+
+    return top_movie_ids
+```
 
 **Cara Kerja**:
-- Dibuat matriks user-item berdasarkan rating yang diberikan.
-- Matriks ini kemudian didekomposisi menggunakan algoritma SVD (Singular Value Decomposition).
-- SVD menemukan struktur laten (faktor tersembunyi) yang mewakili hubungan pengguna dan item, lalu digunakan untuk memprediksi rating yang belum diberikan.
+- Validasi keberadaan user.
+- Encode user.
+- Ambil daftar film yang belum ditonton user.
+- Siapkan input untuk model prediksi.
+- Prediksi rating.
+- Ambil top-N rekomendasi.
+- Tampilkan hasil rekomendasi.
 
 **Kelebihan**: 
-- Memanfaatkan pola preferensi pengguna secara kolektif.
-- Mampu menemukan rekomendasi yang tidak terlihat hanya dari metadata item.
+- Tidak butuh informasi konten (fitur) dari item.
+- Memberikan rekomendasi yang lebih bervariasi.
+- Dapat menangkap selera kompleks pengguna
 
 **Kekurangan**:
 - Tidak cocok untuk pengguna baru tanpa histori (cold-start user).
 - Memerlukan data rating dalam jumlah besar dan sumber daya komputasi lebih tinggi.
+- Rentan terhadap manipulasi
 
----
+**3. Proses Training**
+
+Model collaborative filtering diimplementasikan menggunakan Neural Network dengan lapisan embedding pada kode berikut:
+
+```python
+class RecommenderNet(tf.keras.Model):
+    def __init__(self, num_users, num_movies, embedding_size, **kwargs):
+        super(RecommenderNet, self).__init__(**kwargs)
+        self.user_embedding = layers.Embedding(
+            num_users, embedding_size,
+            embeddings_initializer='he_normal',
+            embeddings_regularizer=keras.regularizers.l2(1e-6)
+        )
+        self.user_bias = layers.Embedding(num_users, 1)
+
+        self.movie_embedding = layers.Embedding(
+            num_movies, embedding_size,
+            embeddings_initializer='he_normal',
+            embeddings_regularizer=keras.regularizers.l2(1e-6)
+        )
+        self.movie_bias = layers.Embedding(num_movies, 1)
+
+    def call(self, inputs):
+        user_vector = self.user_embedding(inputs[:, 0])
+        user_bias = self.user_bias(inputs[:, 0])
+        movie_vector = self.movie_embedding(inputs[:, 1])
+        movie_bias = self.movie_bias(inputs[:, 1])
+
+        dot_user_movie = tf.tensordot(user_vector, movie_vector, 2)
+        x = dot_user_movie + user_bias + movie_bias
+        return tf.nn.sigmoid(x)
+```
+Parameter yang digunakan :
+
+| Parameter | Fungsi |
+| ------ | ------ |
+| **num_users** | Jumlah user unik, menentukan ukuran embedding user |
+| **num_movies** | Jumlah film unik, menentukan ukuran embedding movie |
+| **embedding_size** | Dimensi representasi laten user dan film |
+| **he_normal** | 	Inisialisasi bobot embedding secara efisien |
+| **l2(1e-6)** | Regularisasi untuk menghindari overfitting |
+| **user_bias** | Menangkap kebiasaan rating setiap user |
+| **movie_bias** | Menangkap kecenderungan rating untuk setiap film |
+
+```python
+model = RecommenderNet(num_users, num_movies, embedding_size=50)
+model.compile(
+    loss=tf.keras.losses.BinaryCrossentropy(),
+    optimizer=keras.optimizers.Adam(learning_rate=0.001),
+    metrics=[tf.keras.metrics.RootMeanSquaredError()]
+)
+
+history = model.fit(
+    x_train, y_train,
+    batch_size=256,
+    epochs=3,
+    validation_data=(x_val, y_val)
+)
+```
+cara kerja :
+| Parameter | Fungsi |
+| ------ | ------ |
+| **Data input** | x_train: pasangan user–movie, y_train: rating (0–5) |
+| **Model** | Belajar vektor embedding user dan film, serta bias |
+| **Prediksi** | dot(user, movie) + bias, hasil diaktivasi sigmoid |
+| **Loss** | Dihitung dengan **binary crossentropy** |
+| **Optimisasi** | Bobot diperbarui dengan **Adam optimizer** |
+| **Evaluasi** | Diukur dengan **RMSE** selama training dan validasi |
+
 
 ## 6. Evaluation
 
