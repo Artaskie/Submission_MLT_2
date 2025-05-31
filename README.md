@@ -398,11 +398,13 @@ Hasil dari Top 5 dari film atau movie yang saya rekomendasikan adalah sebagai be
 - Singles (1992)
 - Sleepless in Seattle (1993)
 
-### 3 : Collaborative Filtering 
+### 3. Collaborative Filtering
 
 Disini saya akan merekomendasikan berdasarkan user id **33048**.
 
 Hasil dari Top 10 dari film atau movie yang saya rekomendasikan adalah sebagai berikut :
+
+<img width="451" alt="Image" src="https://github.com/user-attachments/assets/3d1a09f4-01a0-465d-894b-303c82aaa8de" />
 
 **Penjelasan** : Sistem rekomendasi content-based memberikan 5 film teratas yang mirip dengan user id **33048**, yaitu:
 
@@ -417,53 +419,36 @@ Hasil dari Top 10 dari film atau movie yang saya rekomendasikan adalah sebagai b
 - Twelve Monkeys (a.k.a. 12 Monkeys) (1995)
 - Star Wars: Episode IV - A New Hope (1977)
 
----
-## Hubungan Model dengan Business Understanding
+### 4. Precision@K
 
-### 1. Apakah sudah menjawab setiap problem statement?
+Content-Based Filtering (CBF) Untuk mengevaluasi pendekatan Content-Based Filtering, digunakan metrik Precision@K, yaitu rasio item yang relevan terhadap jumlah total item yang direkomendasikan sebanyak K.
 
-**Problem Statement 1:** _Bagaimana cara merekomendasikan film yang relevan bagi pengguna?_  
-**Terjawab:**  
-Model content-based dan collaborative filtering dibangun untuk menghasilkan rekomendasi film yang relevan berdasarkan kesamaan konten dan perilaku pengguna.
+Definisi:
 
-**Problem Statement 2:** _Bagaimana memanfaatkan data rating dan informasi konten film untuk menyusun sistem rekomendasi yang efektif?_  
-**Terjawab:**  
-- **Content-Based Filtering** menggunakan TF-IDF pada data genre film.  
-- **Collaborative Filtering** menggunakan data rating dengan algoritma SVD.
+$$
+Precision@K = \frac{(Jumlah item yang relevan)}{K}
+$$
 
-### 2. Apakah berhasil mencapai setiap goals yang diharapkan?
+Relevansi ditentukan berdasarkan kemiripan genre atau tag antara film yang direkomendasikan dan film referensi yang disukai pengguna.
 
-**Goal 1:** _Membangun dua sistem rekomendasi: content-based dan collaborative._  
-**Tercapai.** Kedua pendekatan berhasil diimplementasikan.
+Film referensi:
+🎬 Waiting to Exhale (1995)
+Genre: Comedy | Drama | Romance
+Top 5 Rekomendasi Film:
 
-**Goal 2:** _Menyajikan rekomendasi film yang sesuai preferensi pengguna._  
-**Tercapai.** Rekomendasi dihasilkan untuk film dan pengguna spesifik.
+| No | Judul Film                                  | Genre                             | Relevan |
+|----|---------------------------------------------|-----------------------------------|---------|
+| 1  | Terminal, The (2004)                        | Comedy \| Drama \| Romance   | ✅      |
+| 2  | Graduate, The (1967)                        | Comedy \| Drama \| Romance   | ✅      |
+| 3  | About Last Night... (1986)                  | Comedy \| Drama \| Romance   | ✅      |
+| 4  | Singles (1992)                              | Comedy \| Drama \| Romance   | ✅      |
+| 5  | Sleepless in Seattle (1993)                 | Comedy \| Drama \| Romance   | ✅      |
 
-**Goal 3:** _Mengevaluasi performa sistem dengan metrik yang sesuai._  
-**Tercapai.**  
-- **Content-Based:** Precision@5 = 0.60  
-- **Collaborative Filtering:** RMSE = 0.7812, MAE = 0.5894
+Hasil: Precision@5 = 5 / 5 = 100%
 
-### 3. Apakah setiap solusi statement yang kamu rencanakan berdampak?
-
-Ya, kedua pendekatan memberikan dampak nyata terhadap tujuan bisnis:
-
-#### Content-Based Filtering
-- **Dampak:** Dapat memberikan rekomendasi untuk film baru (cold-start item).
-- **Manfaat bisnis:** Menjaga ketertarikan pengguna baru melalui rekomendasi yang relevan.
-
-#### Collaborative Filtering
-- **Dampak:** Memberikan rekomendasi personal berdasarkan preferensi pengguna lain.
-- **Manfaat bisnis:** Meningkatkan pengalaman pengguna jangka panjang dan loyalitas.
-
-## Kesimpulan
-
-Model yang dibangun sangat relevan terhadap _business understanding_ proyek ini:
-- Semua **problem statement** dijawab.
-- **Tujuan bisnis** tercapai dan divalidasi secara metrik.
-- **Solusi yang diimplementasikan berdampak nyata** pada peningkatan kepuasan pengguna.
-
----
+- Precision@K memberikan gambaran seberapa relevan rekomendasi sistem terhadap preferensi pengguna.
+- Evaluasi dilakukan secara kualitatif berdasarkan konten, sesuai dengan prinsip content-based filtering.
+- Pendekatan ini berguna terutama ketika data eksplisit seperti rating pengguna belum tersedia atau terbatas (cold-start).
 
 ## Referensi
 1. Nugroho, D. A., Lubis, C., & Perdana, N. J. (2024). SISTEM REKOMENDASI FILM MENGGUNAKAN METODE NEURAL COLLABORATIVE FILTERING. Journal of Information Technology and Computer Science (INTECOMS), 7(3), 926–937.
