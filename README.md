@@ -348,7 +348,31 @@ cara kerja :
 
 ## 6. Evaluation
 
-### Pendekatan 1: Content-Based Filtering
+Evaluasi model dalam proyek ini dilakukan dengan beberapa metrik dan juga dikaitkan dengan business understanding yang telah ditetapkan sebelumnya.
+
+### 1. Root Mean Squared Error (RMSE)
+
+RMSE digunakan untuk mengevaluasi model collaborative filtering berbasis deep learning. RMSE mengukur akar kuadrat dari rata-rata selisih kuadrat antara rating prediksi dan rating sebenarnya.
+
+Formula RMSE:
+
+$$
+\text{RMSE} = \sqrt{\frac{1}{n} \sum_{i=1}^n (y_i - \hat{y}_i)^2}
+$$
+
+Dimana:
+- $y_i$ adalah rating sebenarnya
+- $\hat{y}_i$ adalah rating prediksi
+- $n$ adalah jumlah sampel
+
+Hasil evaluasi menunjukkan:
+
+- RMSE pada data latih: 0.2482
+- RMSE pada data validasi: 0.2502
+
+Nilai RMSE yang rendah (mendekati 0) menunjukkan performa model yang baik. Nilai RMSE yang mirip antara data latih dan validasi juga menunjukkan bahwa model tidak mengalami overfitting.
+
+### 2. Content-Based Filtering
 
 Disini saya merekomendasikan 2, yaitu genre dan film. Untuk film kita gunakan genre **drama**
 
@@ -365,7 +389,7 @@ Hasil dari Top 5 dari genre yang saya rekomendasikan adalah sebagai berikut :
 Disini saya akan merekomendasikan film yang berjudul **Waiting to Exhale (1995)**
 
 Hasil dari Top 5 dari film atau movie yang saya rekomendasikan adalah sebagai berikut :
-<img width="593" alt="Image" src="https://github.com/user-attachments/assets/0f1df93a-ab47-4e32-b490-0bb7a485c068" />
+<img width="428" alt="Image" src="https://github.com/user-attachments/assets/7b491728-97a9-423c-93e9-f570fefb476f" />
 
 **Penjelasan** : Sistem rekomendasi content-based memberikan 5 film teratas yang mirip dengan **Waiting to Exhale (1995)**, yaitu:
 - Terminal, The (2004)
@@ -374,42 +398,24 @@ Hasil dari Top 5 dari film atau movie yang saya rekomendasikan adalah sebagai be
 - Singles (1992)
 - Sleepless in Seattle (1993)
 
-### Pendekatan 2: Collaborative Filtering (SVD)
+### 3 : Collaborative Filtering 
 
-#### Metrik Evaluasi yang Digunakan
-Evaluasi dilakukan secara **kuantitatif** dengan dua metrik:
-- **RMSE (Root Mean Squared Error)**
-- **MAE (Mean Absolute Error)**
+Disini saya akan merekomendasikan berdasarkan user id **33048**.
 
-Keduanya digunakan untuk mengukur seberapa dekat prediksi model terhadap rating sebenarnya yang diberikan pengguna.
+Hasil dari Top 10 dari film atau movie yang saya rekomendasikan adalah sebagai berikut :
 
-#### Penjelasan Metrik
+**Penjelasan** : Sistem rekomendasi content-based memberikan 5 film teratas yang mirip dengan user id **33048**, yaitu:
 
-- **RMSE**:
-
-$$
-\text{RMSE} = \sqrt{\frac{1}{n} \sum_{i=1}^n (y_i - \hat{y}_i)^2}
-$$
-
-- **MAE**:
-
-$$
-\text{MAE} = \frac{1}{n} \sum_{i=1}^n |y_i - \hat{y}_i|
-$$
-
-RMSE lebih sensitif terhadap error besar, sedangkan MAE memberikan estimasi rata-rata kesalahan model.
-
-#### Hasil Evaluasi
-Berdasarkan hasil validasi silang:
-- **RMSE: 0.7812**
-- **MAE: 0.5894**
-
-Nilai ini menunjukkan bahwa model cukup akurat dalam memprediksi rating pengguna terhadap film.
-
-#### Kesesuaian Metrik dengan Konteks
-- Relevan digunakan dalam sistem rekomendasi berbasis rating.
-- Menilai performa prediksi terhadap preferensi pengguna.
-- Mendukung strategi personalisasi rekomendasi.
+- Schindler's List (1993)
+- Silence of the Lambs, The (1991)
+- Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb (1964)
+- Princess Mononoke (Mononoke-hime) (1997)
+- Godfather, The (1972)
+- Pulp Fiction (1994)
+- Wallace & Gromit: The Wrong Trousers (1993)
+- 12 Angry Men (1957)
+- Twelve Monkeys (a.k.a. 12 Monkeys) (1995)
+- Star Wars: Episode IV - A New Hope (1977)
 
 ---
 ## Hubungan Model dengan Business Understanding
