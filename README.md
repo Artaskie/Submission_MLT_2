@@ -372,9 +372,7 @@ cara kerja :
 
 Untuk pengguna dengan ID **33048**, sistem menampilkan:
 
-Film dengan rating tertinggi yang telah diberikan oleh pengguna. Top 10 rekomendasi film berdasarkan prediksi model sebagai berikut
-
-Hasil dari Top 10 dari film atau movie yang saya rekomendasikan adalah sebagai berikut :
+Film dengan rating tertinggi yang telah diberikan oleh pengguna. Top 10 rekomendasi film berdasarkan prediksi model sebagai berikut:
 
 <img width="451" alt="Image" src="https://github.com/user-attachments/assets/3d1a09f4-01a0-465d-894b-303c82aaa8de" />
 
