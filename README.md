@@ -42,7 +42,7 @@ Untuk mewujudkan tujuan proyek, solusi yang akan diterapkan meliputi dua pendeka
 ## 3. Data Understanding
 
 ### Dataset Overview
-Proyek ini menggunakan dataset Movie Recommendation System yang tersedia di Kaggle, dikembangkan oleh Parashar Manas. Dataset ini dirancang untuk membangun sistem rekomendasi film menggunakan teknik pembelajaran mesin dan menyediakan dua file utama:
+Proyek ini menggunakan dataset Movie Recommendation System yang tersedia di Kaggle, dikembangkan oleh Parashar Manas. Dataset ini diambil dari link berikut : https://www.kaggle.com/datasets/parasharmanas/movie-recommendation-system. Dataset ini dirancang untuk membangun sistem rekomendasi film menggunakan teknik pembelajaran mesin dan menyediakan dua file utama:
 
 #### a. movies.csv
 - Jumlah data: 62.432 baris × 3 kolom
@@ -89,7 +89,11 @@ print(df.duplicated().sum())
 
 Tidak terdapat data duplikat pada dataset tersebut.
 
-### 3. Content-Based Filtering
+### 3. Pengambilan Sampel
+
+Baris ini mengambil sampel acak sebanyak 500.000 baris dari DataFrame df menggunakan method .sample(). Parameter random_state=42 digunakan agar proses pengambilan sampel bersifat reproducible, artinya hasilnya akan selalu sama setiap kali kode dijalankan (selama data df tidak berubah), karena menggunakan seed acak yang tetap. Setelah sampel diambil, method .copy() digunakan untuk membuat salinan independen dari data yang dipilih, sehingga perubahan pada df_sample tidak akan memengaruhi DataFrame asli df. Hasil akhir disimpan dalam variabel df_sample.
+
+### 4. Content-Based Filtering
 
 Kode yang digunakan 
 ```python
@@ -106,7 +110,7 @@ cos_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
 - Menerapkan TF-IDF Vectorizer pada kolom genres untuk menghasilkan matriks representasi fitur dari genre tiap film.
 - Menghitung tingkat kemiripan antar film berdasarkan genre menggunakan metrik cosine similarity dari TF-IDF matrix.
 
-### 4. Collaborative Filtering
+### 5. Collaborative Filtering
 
 Kode yang digunakan 
 ```python
@@ -128,7 +132,7 @@ cbf_df['movie'] = cbf_df['movieId'].map(movie_to_movie_encoded)
 - Membuat dictionary yang memetakan setiap userId asli (x) ke angka urut (i) — proses encoding.
 - Melakukan validasi silang menggunakan cross_validate untuk mengukur performa model.
 
-### 5. Splitting Data
+### 6. Splitting Data
 
 Kode yang digunakan :
 ```python
@@ -202,6 +206,31 @@ def rekomendasi_film_content(title, top_n=5):
 5. Hilangkan film referensi dari hasil (jangan rekomendasikan dirinya sendiri).
 6. Urutkan dan ambil Top-N film dengan skor kemiripan tertinggi
 7. Tampilkan hasil rekomendasi
+
+Setelah melakukan ekstraksi fitur film menggunakan TF-IDF, sistem rekomendasi dikembangkan menggunakan algoritma K-Nearest Neighbors (KNN) dengan cosine similarity. Model ini digunakan untuk mencari film yang memiliki kemiripan konten satu sama lain. Disini saya merekomendasikan 2, yaitu genre dan film. Untuk film kita gunakan genre **drama**. Berikut merupakan contoh output rekomendasi.
+
+Hasil dari Top 5 dari genre yang saya rekomendasikan adalah sebagai berikut :
+<img width="593" alt="Image" src="https://github.com/user-attachments/assets/0f1df93a-ab47-4e32-b490-0bb7a485c068" />
+
+**Penjelasan** : Sistem rekomendasi content-based memberikan 5 film teratas yang mirip dengan genre drama, yaitu:
+- Blindness (2008)
+- Conspiracy Theory (1997)
+- Vertigo (1958)
+- Rebecca (1940)
+- Boxing Helena (1993)
+
+Disini saya akan merekomendasikan film yang berjudul **Waiting to Exhale (1995)**
+
+Hasil dari Top 5 dari film atau movie yang saya rekomendasikan adalah sebagai berikut :
+<img width="428" alt="Image" src="https://github.com/user-attachments/assets/7b491728-97a9-423c-93e9-f570fefb476f" />
+
+**Penjelasan** : Sistem rekomendasi content-based memberikan 5 film teratas yang mirip dengan **Waiting to Exhale (1995)**, yaitu:
+- Terminal, The (2004)
+- Graduate, The (1967)
+- About Last Night... (1986)
+- Singles (1992)
+- Sleepless in Seattle (1993)
+
 
 **Kelebihan**:
 - Tidak membutuhkan data dari pengguna lain (independen).
@@ -339,6 +368,29 @@ cara kerja :
 | **Optimisasi** | Bobot diperbarui dengan **Adam optimizer** |
 | **Evaluasi** | Diukur dengan **RMSE** selama training dan validasi |
 
+**Contoh Hasil Rekomendasi:**
+
+Untuk pengguna dengan ID **33048**, sistem menampilkan:
+
+Film dengan rating tertinggi yang telah diberikan oleh pengguna. Top 10 rekomendasi film berdasarkan prediksi model sebagai berikut
+
+Hasil dari Top 10 dari film atau movie yang saya rekomendasikan adalah sebagai berikut :
+
+<img width="451" alt="Image" src="https://github.com/user-attachments/assets/3d1a09f4-01a0-465d-894b-303c82aaa8de" />
+
+**Penjelasan** : Sistem rekomendasi content-based memberikan 5 film teratas yang mirip dengan user id **33048**, yaitu:
+
+- Schindler's List (1993)
+- Silence of the Lambs, The (1991)
+- Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb (1964)
+- Princess Mononoke (Mononoke-hime) (1997)
+- Godfather, The (1972)
+- Pulp Fiction (1994)
+- Wallace & Gromit: The Wrong Trousers (1993)
+- 12 Angry Men (1957)
+- Twelve Monkeys (a.k.a. 12 Monkeys) (1995)
+- Star Wars: Episode IV - A New Hope (1977)
+
 ---
 
 ## 6. Evaluation
@@ -367,54 +419,7 @@ Hasil evaluasi menunjukkan:
 
 Nilai RMSE yang rendah (mendekati 0) menunjukkan performa model yang baik. Nilai RMSE yang mirip antara data latih dan validasi juga menunjukkan bahwa model tidak mengalami overfitting.
 
-### 2. Content-Based Filtering
-
-Disini saya merekomendasikan 2, yaitu genre dan film. Untuk film kita gunakan genre **drama**
-
-Hasil dari Top 5 dari genre yang saya rekomendasikan adalah sebagai berikut :
-<img width="593" alt="Image" src="https://github.com/user-attachments/assets/0f1df93a-ab47-4e32-b490-0bb7a485c068" />
-
-**Penjelasan** : Sistem rekomendasi content-based memberikan 5 film teratas yang mirip dengan genre drama, yaitu:
-- Blindness (2008)
-- Conspiracy Theory (1997)
-- Vertigo (1958)
-- Rebecca (1940)
-- Boxing Helena (1993)
-
-Disini saya akan merekomendasikan film yang berjudul **Waiting to Exhale (1995)**
-
-Hasil dari Top 5 dari film atau movie yang saya rekomendasikan adalah sebagai berikut :
-<img width="428" alt="Image" src="https://github.com/user-attachments/assets/7b491728-97a9-423c-93e9-f570fefb476f" />
-
-**Penjelasan** : Sistem rekomendasi content-based memberikan 5 film teratas yang mirip dengan **Waiting to Exhale (1995)**, yaitu:
-- Terminal, The (2004)
-- Graduate, The (1967)
-- About Last Night... (1986)
-- Singles (1992)
-- Sleepless in Seattle (1993)
-
-### 3. Collaborative Filtering
-
-Disini saya akan merekomendasikan berdasarkan user id **33048**.
-
-Hasil dari Top 10 dari film atau movie yang saya rekomendasikan adalah sebagai berikut :
-
-<img width="451" alt="Image" src="https://github.com/user-attachments/assets/3d1a09f4-01a0-465d-894b-303c82aaa8de" />
-
-**Penjelasan** : Sistem rekomendasi content-based memberikan 5 film teratas yang mirip dengan user id **33048**, yaitu:
-
-- Schindler's List (1993)
-- Silence of the Lambs, The (1991)
-- Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb (1964)
-- Princess Mononoke (Mononoke-hime) (1997)
-- Godfather, The (1972)
-- Pulp Fiction (1994)
-- Wallace & Gromit: The Wrong Trousers (1993)
-- 12 Angry Men (1957)
-- Twelve Monkeys (a.k.a. 12 Monkeys) (1995)
-- Star Wars: Episode IV - A New Hope (1977)
-
-### 4. Precision@K
+### 2. Precision@K
 
 Content-Based Filtering (CBF) Untuk mengevaluasi pendekatan Content-Based Filtering, digunakan metrik Precision@K, yaitu rasio item yang relevan terhadap jumlah total item yang direkomendasikan sebanyak K.
 
